@@ -1,0 +1,119 @@
+{
+  "template": "MASTER_SRC_TEMPLATE.docx",
+  "version": "0.1",
+  "strategy": "Replace {{FIELD}} tokens while preserving surrounding DOCX structure and formatting. Session tables 3-8 are repeatable prototypes; future engine should clone a session table block when more sessions are needed.",
+  "fixed_design": [
+    "page size/orientation",
+    "margins",
+    "header/footer",
+    "institutional images",
+    "table geometry",
+    "borders",
+    "fills",
+    "fonts/styles"
+  ],
+  "unit_fields": [
+    "UNIDAD",
+    "TITULO_UNIDAD",
+    "NIVEL",
+    "AREA",
+    "FECHA_INICIO",
+    "GRADO",
+    "DOCENTE",
+    "FECHA_FIN"
+  ],
+  "significant_situation": [
+    "SITUACION_CONTEXTO",
+    "SITUACION_RETO",
+    "SITUACION_PRODUCTO"
+  ],
+  "agustinian_value": [
+    "VALOR_AGUSTINO",
+    "DIMENSION_VALOR",
+    "ACTITUD_VALOR_AGUSTINO"
+  ],
+  "learning_purposes": [
+    "COMPETENCIAS",
+    "CAPACIDADES_DESEMPENOS",
+    "CONOCIMIENTOS",
+    "EVIDENCIAS_APRENDIZAJE",
+    "INSTRUMENTOS_EVALUACION",
+    "COMPETENCIAS_TRANSVERSALES"
+  ],
+  "transversal": [
+    "ENFOQUE_TRANSVERSAL_1",
+    "ACTITUDES_OBSERVABLES_1",
+    "ENFOQUE_TRANSVERSAL_2",
+    "ACTITUDES_OBSERVABLES_2"
+  ],
+  "sessions": [
+    {
+      "INICIO": "SESION_1_INICIO",
+      "TIEMPO_INICIO": "SESION_1_TIEMPO_INICIO",
+      "RECURSOS_INICIO": "SESION_1_RECURSOS_INICIO",
+      "DESARROLLO": "SESION_1_DESARROLLO",
+      "TIEMPO_DESARROLLO": "SESION_1_TIEMPO_DESARROLLO",
+      "RECURSOS_DESARROLLO": "SESION_1_RECURSOS_DESARROLLO",
+      "CIERRE": "SESION_1_CIERRE",
+      "TIEMPO_CIERRE": "SESION_1_TIEMPO_CIERRE",
+      "RECURSOS_CIERRE": "SESION_1_RECURSOS_CIERRE"
+    },
+    {
+      "INICIO": "SESION_2_INICIO",
+      "TIEMPO_INICIO": "SESION_2_TIEMPO_INICIO",
+      "RECURSOS_INICIO": "SESION_2_RECURSOS_INICIO",
+      "DESARROLLO": "SESION_2_DESARROLLO",
+      "TIEMPO_DESARROLLO": "SESION_2_TIEMPO_DESARROLLO",
+      "RECURSOS_DESARROLLO": "SESION_2_RECURSOS_DESARROLLO",
+      "CIERRE": "SESION_2_CIERRE",
+      "TIEMPO_CIERRE": "SESION_2_TIEMPO_CIERRE",
+      "RECURSOS_CIERRE": "SESION_2_RECURSOS_CIERRE"
+    },
+    {
+      "INICIO": "SESION_3_INICIO",
+      "TIEMPO_INICIO": "SESION_3_TIEMPO_INICIO",
+      "RECURSOS_INICIO": "SESION_3_RECURSOS_INICIO",
+      "DESARROLLO": "SESION_3_DESARROLLO",
+      "TIEMPO_DESARROLLO": "SESION_3_TIEMPO_DESARROLLO",
+      "RECURSOS_DESARROLLO": "SESION_3_RECURSOS_DESARROLLO",
+      "CIERRE": "SESION_3_CIERRE",
+      "TIEMPO_CIERRE": "SESION_3_TIEMPO_CIERRE",
+      "RECURSOS_CIERRE": "SESION_3_RECURSOS_CIERRE"
+    },
+    {
+      "INICIO": "SESION_4_INICIO",
+      "TIEMPO_INICIO": "SESION_4_TIEMPO_INICIO",
+      "RECURSOS_INICIO": "SESION_4_RECURSOS_INICIO",
+      "DESARROLLO": "SESION_4_DESARROLLO",
+      "TIEMPO_DESARROLLO": "SESION_4_TIEMPO_DESARROLLO",
+      "RECURSOS_DESARROLLO": "SESION_4_RECURSOS_DESARROLLO",
+      "CIERRE": "SESION_4_CIERRE",
+      "TIEMPO_CIERRE": "SESION_4_TIEMPO_CIERRE",
+      "RECURSOS_CIERRE": "SESION_4_RECURSOS_CIERRE"
+    },
+    {
+      "INICIO": "SESION_5_INICIO",
+      "TIEMPO_INICIO": "SESION_5_TIEMPO_INICIO",
+      "RECURSOS_INICIO": "SESION_5_RECURSOS_INICIO",
+      "DESARROLLO": "SESION_5_DESARROLLO",
+      "TIEMPO_DESARROLLO": "SESION_5_TIEMPO_DESARROLLO",
+      "RECURSOS_DESARROLLO": "SESION_5_RECURSOS_DESARROLLO",
+      "CIERRE": "SESION_5_CIERRE",
+      "TIEMPO_CIERRE": "SESION_5_TIEMPO_CIERRE",
+      "RECURSOS_CIERRE": "SESION_5_RECURSOS_CIERRE"
+    },
+    {
+      "INICIO": "SESION_6_INICIO",
+      "TIEMPO_INICIO": "SESION_6_TIEMPO_INICIO",
+      "RECURSOS_INICIO": "SESION_6_RECURSOS_INICIO",
+      "DESARROLLO": "SESION_6_DESARROLLO",
+      "TIEMPO_DESARROLLO": "SESION_6_TIEMPO_DESARROLLO",
+      "RECURSOS_DESARROLLO": "SESION_6_RECURSOS_DESARROLLO",
+      "CIERRE": "SESION_6_CIERRE",
+      "TIEMPO_CIERRE": "SESION_6_TIEMPO_CIERRE",
+      "RECURSOS_CIERRE": "SESION_6_RECURSOS_CIERRE"
+    }
+  ],
+  "rubric": "RUBRICA_TITULO + RUBRICA_F1_C1 ... RUBRICA_F5_C5",
+  "next_engine_requirement": "Clone/remove complete session table blocks according to the actual number of classes, then replace fields. Do not reconstruct visual design."
+}

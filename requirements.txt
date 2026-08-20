@@ -1,0 +1,4 @@
+mcp>=2,<3
+python-docx>=1.2,<2
+starlette>=0.50,<1
+uvicorn[standard]>=0.30,<1

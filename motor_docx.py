@@ -142,12 +142,12 @@ def replace_para(paragraph: Paragraph, mapping: Mapping[str, str]) -> None:
 
     stripped = full.strip()
     if len(matches) == 1 and stripped == '{{' + matches[0] + '}}':
-        write_multi_paragraph(paragraph, mapping.get(matches[0], ''))
+        write_multi_paragraph(paragraph, mapping[matches[0]])
         return
 
     new = full
     for key in matches:
-        new = new.replace('{{' + key + '}}', str(mapping.get(key, '')))
+        new = new.replace('{{' + key + '}}', str(mapping[key]))
     write_multi_paragraph(paragraph, new)
 
 
@@ -162,13 +162,31 @@ def walk_cell(cell, mapping: Mapping[str, str]) -> None:
 
 
 def collect_placeholders(document: Document) -> list[str]:
+    """Return every unique {{FIELD}} token present anywhere in the DOCX."""
     remaining: list[str] = []
-    for paragraph in document.paragraphs:
-        remaining.extend(PLACEHOLDER_RE.findall(paragraph.text))
-    for table in document.tables:
+
+    def collect_from_table(table) -> None:
         for row in table.rows:
             for cell in row.cells:
                 remaining.extend(PLACEHOLDER_RE.findall(cell.text))
+                for child in cell.tables:
+                    collect_from_table(child)
+
+    for paragraph in document.paragraphs:
+        remaining.extend(PLACEHOLDER_RE.findall(paragraph.text))
+    for table in document.tables:
+        collect_from_table(table)
+
+    for section in document.sections:
+        for paragraph in section.header.paragraphs:
+            remaining.extend(PLACEHOLDER_RE.findall(paragraph.text))
+        for table in section.header.tables:
+            collect_from_table(table)
+        for paragraph in section.footer.paragraphs:
+            remaining.extend(PLACEHOLDER_RE.findall(paragraph.text))
+        for table in section.footer.tables:
+            collect_from_table(table)
+
     return sorted(set(remaining))
 
 
@@ -176,6 +194,17 @@ def fill_docx(template: str | Path, data: Mapping[str, object], output: str | Pa
     template = Path(template)
     output = Path(output)
     document = Document(template)
+
+    # FAIL-SAFE: never generate a document if ChatGPT did not send every field
+    # that the template actually contains. The previous version silently
+    # replaced missing placeholders with blank strings, producing an empty DOCX.
+    required = collect_placeholders(document)
+    missing = [key for key in required if key not in data]
+    if missing:
+        raise ValueError(
+            'Missing required template fields: ' + ', '.join(missing)
+        )
+
     mapping = {
         k: ('' if v is None else str(v))
         for k, v in data.items()

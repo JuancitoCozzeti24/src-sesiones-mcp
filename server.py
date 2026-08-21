@@ -14,7 +14,8 @@ from starlette.applications import Starlette
 from starlette.responses import FileResponse, JSONResponse, PlainTextResponse
 from starlette.routing import Mount, Route
 
-from motor_docx import fill_docx
+from motor_docx import fill_docx, collect_placeholders
+from docx import Document
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE = BASE_DIR / 'templates' / 'MASTER_SRC_TEMPLATE.docx'
@@ -25,7 +26,7 @@ PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', '').rstrip('/')
 
 mcp = MCPServer(
     'SRC Sesiones Quincenales',
-    version='0.1.0',
+    version='0.1.1',
     instructions=(
         'Genera documentos DOCX de sesiones quincenales usando exclusivamente la plantilla institucional SRC. '
         'No rediseñes la plantilla. Antes de generar, construye contenido pedagógico detallado para Inicio, Desarrollo '
@@ -35,18 +36,25 @@ mcp = MCPServer(
 
 
 def _field_keys() -> list[str]:
-    raw = json.loads(FIELD_MAP.read_text(encoding='utf-8'))
-    if isinstance(raw, dict):
-        if 'fields' in raw and isinstance(raw['fields'], list):
-            out = []
-            for item in raw['fields']:
-                if isinstance(item, str):
-                    out.append(item)
-                elif isinstance(item, dict):
-                    out.append(str(item.get('name') or item.get('field') or ''))
-            return sorted(x for x in out if x)
-        return sorted(str(k) for k in raw.keys())
-    return []
+    """
+    Read the real required fields directly from MASTER_SRC_TEMPLATE.docx.
+
+    This deliberately does NOT infer fields from field_map.json because that
+    file is descriptive/grouped metadata, not the authoritative source of
+    placeholder names.
+    """
+    if not TEMPLATE.exists():
+        return []
+    return collect_placeholders(Document(TEMPLATE))
+
+
+def _field_groups() -> dict:
+    """Return descriptive grouping metadata for ChatGPT, when available."""
+    try:
+        raw = json.loads(FIELD_MAP.read_text(encoding='utf-8'))
+        return raw if isinstance(raw, dict) else {}
+    except Exception:
+        return {}
 
 
 def _safe_docx_name(name: str) -> str:
@@ -71,9 +79,15 @@ def get_template_info() -> dict:
     fields = _field_keys()
     return {
         'template': TEMPLATE.name,
-        'version': '0.1.0',
+        'version': '0.1.1',
         'field_count': len(fields),
         'fields': fields,
+        'field_groups': _field_groups(),
+        'important_instruction': (
+            'Before calling generate_quincena_docx, prepare ALL fields returned '
+            'in fields. The generator rejects incomplete payloads instead of '
+            'creating a blank Word.'
+        ),
         'format_rules': [
             'Conservar diseño, logo, pie, tablas, colores y tipografía de la plantilla.',
             'Negrita solo en etiquetas y subtítulos.',
@@ -91,14 +105,32 @@ def generate_quincena_docx(fields: dict[str, str], output_name: str = 'SESIONES_
     Usa esta herramienta después de que ChatGPT haya preparado el contenido pedagógico completo.
     """
     required = _field_keys()
-    if required:
-        missing = [key for key in required if key not in fields]
-        if missing:
-            return {
-                'ok': False,
-                'error': 'Faltan campos requeridos por la plantilla.',
-                'missing_fields': missing,
-            }
+    missing = [key for key in required if key not in fields]
+    if missing:
+        return {
+            'ok': False,
+            'error': 'Faltan campos requeridos por la plantilla. No se generó ningún Word.',
+            'missing_fields': missing,
+            'required_field_count': len(required),
+            'received_field_count': len(fields),
+        }
+
+    # Reject an obviously empty/placeholder payload even when every key exists.
+    critical = [
+        'UNIDAD', 'TITULO_UNIDAD', 'NIVEL', 'AREA', 'GRADO', 'DOCENTE',
+        'SITUACION_CONTEXTO', 'COMPETENCIAS',
+        'SESION_1_INICIO', 'SESION_1_DESARROLLO', 'SESION_1_CIERRE'
+    ]
+    empty_critical = [
+        key for key in critical
+        if not str(fields.get(key, '')).strip()
+    ]
+    if empty_critical:
+        return {
+            'ok': False,
+            'error': 'Hay campos críticos vacíos. No se generó ningún Word.',
+            'empty_critical_fields': empty_critical,
+        }
 
     file_id = uuid.uuid4().hex
     safe_name = _safe_docx_name(output_name)
@@ -139,13 +171,13 @@ async def health(request):
     return JSONResponse({
         'ok': True,
         'service': 'SRC Sesiones Quincenales',
-        'version': '0.1.0',
+        'version': '0.1.1',
         'mcp_endpoint': '/mcp',
     })
 
 
 async def home(request):
-    return PlainTextResponse('SRC Sesiones Quincenales MCP v0.1.0 - endpoint: /mcp')
+    return PlainTextResponse('SRC Sesiones Quincenales MCP v0.1.1 - endpoint: /mcp')
 
 
 async def download(request):

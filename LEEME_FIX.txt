@@ -1,0 +1,17 @@
+SRC SESIONES — FIX v0.1.1
+
+QUÉ CORRIGE
+1. Lee los 104 campos reales directamente desde MASTER_SRC_TEMPLATE.docx.
+2. Ya no interpreta las categorías de field_map.json como si fueran campos.
+3. Si falta UN solo campo, generate_quincena_docx devuelve error y NO crea un Word.
+4. motor_docx.py ya no sustituye placeholders ausentes por texto vacío.
+5. Valida campos críticos para impedir documentos prácticamente vacíos.
+
+CÓMO APLICAR
+- En GitHub, reemplaza server.py por el de este ZIP.
+- Reemplaza motor_docx.py por el de este ZIP.
+- No cambies MASTER_SRC_TEMPLATE.docx ni field_map.json.
+- Haz commit. Render tiene auto-deploy y desplegará automáticamente.
+- En ChatGPT, actualiza/reconecta SESIONES SRC si fuera necesario.
+- Primero prueba: @SESIONES SRC consulta la plantilla usando get_template_info
+  Debe devolver aproximadamente 104 campos reales (UNIDAD, TITULO_UNIDAD, SESION_1_INICIO, etc.).

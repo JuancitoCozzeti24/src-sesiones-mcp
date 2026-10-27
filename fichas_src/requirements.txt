@@ -1,5 +1,4 @@
-mcp>=2,<3
 starlette>=0.50,<1
 uvicorn[standard]>=0.30,<1
 reportlab>=4,<5
-Pillow>=11,<12
+mcp[cli]>=1.28,<2
